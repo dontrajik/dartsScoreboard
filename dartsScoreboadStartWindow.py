@@ -6,7 +6,9 @@ def show_values():
         entry1.insert(0," P1")
     if entry2.get() == "":
         entry2.insert(0," P2")
-    result = [entry1.get(), entry2.get(), legs.get(), sets.get()]
+    result = [str(entry1.get()), str(entry2.get()), str(legs.get()), str(sets.get())]
+    for i in range(len(result)):
+        result[i] = result[i][:3].upper()
     print (result)
     ser = serial.Serial('/dev/ttyUSB0', baudrate=9600)  # open serial port
     s = ""
@@ -14,8 +16,8 @@ def show_values():
         s += str(i)
         s += ";"
     ser.write(bytes(s.encode()))
+    print(s)
     root.destroy()
-
 
 root = Tk()
 root.title("Darts Scoreboard")
@@ -33,18 +35,17 @@ entry2 = Entry(root, width=100)
 entry2.grid(row=2, column=1)
 
 Label(root, text="Zero == Infinite").grid(row=3,columnspan=2, sticky="NS")
-Label(root, text="Legs:").grid(row=4,column=0)
-sets = Scale(root, orient=HORIZONTAL, from_=0, to=50, length=1000)
-sets.grid(row=4,column=1)
-sets.set(1)
-Label(root, text="Sets:").grid(row=5,column=0)
+Label(root, text="Sets:").grid(row=4,column=0)
 legs = Scale(root, orient=HORIZONTAL, from_=0, to=50, length=1000)
-legs.grid(row=5,column=1)
+legs.grid(row=4,column=1)
 legs.set(1)
+Label(root, text="Legs:").grid(row=5,column=0)
+sets = Scale(root, orient=HORIZONTAL, from_=0, to=50, length=1000)
+sets.grid(row=5,column=1)
+sets.set(1)
 
 button1 = Button(root, text = "QUIT", command=root.destroy).grid(row=6,column=0, sticky="WE")
 button2 = Button(root, text = "START", command=show_values).grid(row=6,column=1, columnspan=2, sticky="WE")
+
+entry1.focus()
 mainloop()
-
-
-    
