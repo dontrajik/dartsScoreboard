@@ -1,6 +1,9 @@
 from tkinter import *
 import serial
+from time import sleep
 
+ser = serial.Serial('/dev/ttyUSB0', baudrate=9600)  # open serial port
+    
 def show_values():
     if entry1.get() == "":
         entry1.insert(0," P1")
@@ -10,13 +13,18 @@ def show_values():
     for i in range(len(result)):
         result[i] = result[i][:3].upper()
     print (result)
-    ser = serial.Serial('/dev/ttyUSB0', baudrate=9600)  # open serial port
     s = ""
     for i in result:
         s += str(i)
         s += ";"
-    ser.write(bytes(s.encode()))
+    ser.write(bytes("START".encode()))
+    line = ser.readline()
+    while (line.decode("UTF-8").strip() != "OK"):
+        print(line)
+        line = ser.readline()
     print(s)
+
+    ser.write(bytes(s.encode()))
     root.destroy()
 
 root = Tk()
@@ -49,3 +57,8 @@ button2 = Button(root, text = "START", command=show_values).grid(row=6,column=1,
 
 entry1.focus()
 mainloop()
+
+line = ""
+while True:
+    line = ser.readline()
+    print(line.decode("UTF-8").strip())
