@@ -31,7 +31,7 @@ byte arrow[8] = {
 
 boolean throwable(int thrown){
   int unthrowable[9] = {
-    179, 178, 176, 175, 173, 172, 169, 166, 163                        };
+    179, 178, 176, 175, 173, 172, 169, 166, 163    };
   if(thrown > 180){
     return false;
   }
@@ -47,9 +47,9 @@ String temp;
 void setup() {
   Serial.begin(9600);
   lcd.begin(16, 2);
-      lcd.createChar(0, arrow);
+  lcd.createChar(0, arrow);
   int dots = 1;
-
+  lcd.clear();
   lcd.print("Loading");
   while(Serial.readString() != "START")
   { 
@@ -79,22 +79,49 @@ void setup() {
   lcd.setCursor(0,0);
 }
 void board(){
-  lcd.setCursor(0,0);
+  lcd.clear();
   lcd.print(match_data.substring(0,3));
-  lcd.print(" ");
+  lcd.print("    ");
+  if(String(p1_score).length() == 3){
+    lcd.setCursor(4,0);
+  }
+  else if (String(p1_score).length() == 2){
+    lcd.setCursor(5,0);
+  }
+  else {
+    lcd.setCursor(6,0);
+  }
   lcd.print(String(p1_score));
   lcd.setCursor(8,0);
   lcd.print(String(p1_leg));
   lcd.print(" ");
   lcd.print(String(p1_set));
+
+  if(!onTurn){
+    lcd.print("    ");
+    lcd.write(byte(0));
+  }
   lcd.setCursor(0,1);
   lcd.print(match_data.substring(4,7));
-  lcd.print(" ");
+  lcd.print("    ");
+  if(String(p2_score).length() == 3){
+    lcd.setCursor(4,1);
+  }
+  else if (String(p2_score).length() == 2){
+    lcd.setCursor(5,1);
+  }
+  else {
+    lcd.setCursor(6,1);
+  }
   lcd.print(String(p2_score));
   lcd.setCursor(8,1);
   lcd.print(String(p2_leg));
   lcd.print(" ");
   lcd.print(String(p2_set));
+  if(onTurn){
+    lcd.print("    ");
+    lcd.write(byte(0));
+  }
 }
 void loop() {
   board();
@@ -156,7 +183,7 @@ void loop() {
         }
         input = "";
         lcd.setCursor(12,1);
-        lcd.print("    ");
+        lcd.print("   ");
         lcd.setCursor(12,1);
       }
       else if (!wtf and (signal !="ENTER")) {
@@ -175,56 +202,41 @@ void loop() {
   }
   input = input.substring(0,3);
   if((input != "")and(throwable(input.toInt()))){
-    if(!onTurn and (p1_score>=input.toInt()) or onTurn and(p2_score>=input.toInt())){
-    lcd.setCursor(12,0);
-    lcd.print("   ");
-    lcd.setCursor(12,0);
-    lcd.print(input);
-    Serial.println(input);
-    if(!onTurn){
-      p1_score = p1_score - input.toInt();
-      lcd.setCursor(15, 0);
-      lcd.print(" ");
-      lcd.setCursor(15,1);
-      lcd.write(byte(0));
+    if(!onTurn and ((p1_score!=(input.toInt() + 1)) and (p1_score >= (input.toInt()))) or onTurn and (p2_score!=(input.toInt() + 1) and (p2_score >= input.toInt()))){
+      lcd.setCursor(12,0);
+      lcd.print("   ");
+      lcd.setCursor(12,0);
+      lcd.print(input);
+      Serial.println(input);
+      if(!onTurn){
+        p1_score = p1_score - input.toInt();
+        lcd.setCursor(15, 0);
+        lcd.print(" ");
+        lcd.setCursor(15,1);
+        lcd.write(byte(0));
+      }
+      else{
+        p2_score = p2_score - input.toInt();
+        lcd.setCursor(15, 1);
+        lcd.print(" ");
+        lcd.setCursor(15,0);
+        lcd.write(byte(0));
+      }
+      onTurn = !onTurn;
+      input = "";
     }
-    else{
-      p2_score = p2_score - input.toInt();
-      lcd.setCursor(15, 1);
-      lcd.print(" ");
-      lcd.setCursor(15,0);
-      lcd.write(byte(0));
-    }
-    onTurn = !onTurn;
-    input = "";
-  }}
+  }
   lcd.setCursor(12,1);
   lcd.print("   ");
   lcd.setCursor(12,1);
   if(p1_score == 0){
     p1_score = 501;
     p2_score = 501;
-    p1_leg++;}
+    p1_leg++;
+  }
   if(p2_score == 0){
     p2_score = 501;
     p1_score = 501;
-    p2_leg++;}
+    p2_leg++;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
