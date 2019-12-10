@@ -7,6 +7,13 @@ int p1_set = 0;
 int p2_set = 0;
 int p1_leg = 0;
 int p2_leg = 0;
+boolean match_ended = false;
+String p1_name;
+String p2_name;
+boolean leg_starter = false;
+boolean set_starter = false;
+int legsinset;
+int setsinmatch;
 String match_data;
 const int RECV_PIN = 7;
 boolean wtf = false;
@@ -45,6 +52,25 @@ boolean throwable(int thrown){
 
 String temp;
 void setup() {
+p1_score = 501;
+p2_score = 501;
+p1_set = 0;
+p2_set = 0;
+p1_leg = 0;
+p2_leg = 0;
+match_ended = false;
+p1_name;
+p2_name;
+leg_starter = false;
+set_starter = false;
+legsinset;
+setsinmatch;
+match_data;
+const int RECV_PIN = 7;
+wtf = false;
+onTurn = false;
+String signal = "";
+String input = "";
   Serial.begin(9600);
   lcd.begin(16, 2);
   lcd.createChar(0, arrow);
@@ -66,13 +92,15 @@ void setup() {
       lcd.setCursor(7,0);
       lcd.print("    ");
     };
-
-    Serial.println("Loading...");
   } 
   delay(200);
   Serial.println("OK");
   lcd.clear();
   match_data = Serial.readString();
+  legsinset = match_data.substring(8,9).toInt();
+  setsinmatch = match_data.substring(10,11).toInt();
+  p1_name = match_data.substring(0,3);
+  p2_name = match_data.substring(4,7);
   irrecv.enableIRIn();
   lcd.setCursor(15,0);
   lcd.write(byte(0));
@@ -80,7 +108,7 @@ void setup() {
 }
 void board(){
   lcd.clear();
-  lcd.print(match_data.substring(0,3));
+  lcd.print(p1_name);
   lcd.print("    ");
   if(String(p1_score).length() == 3){
     lcd.setCursor(4,0);
@@ -102,7 +130,7 @@ void board(){
     lcd.write(byte(0));
   }
   lcd.setCursor(0,1);
-  lcd.print(match_data.substring(4,7));
+  lcd.print(p2_name);
   lcd.print("    ");
   if(String(p2_score).length() == 3){
     lcd.setCursor(4,1);
@@ -128,7 +156,7 @@ void loop() {
   wtf = false;
   signal = "";
   input = "";
-  while(signal != "ENTER"){
+  while((signal != "ENTER") and !match_ended){
     if (irrecv.decode(&results)) {
 
       signal = "";
@@ -171,20 +199,38 @@ void loop() {
         break;
       case 0xE0E0B44B:
         signal = "EXIT";
+        
         break;
       default:
         wtf = true;
         break;
       }
       //Serial.print(signal);
+      if(!wtf and (signal == "EXIT")){
+        Serial.println("EXIT");
+        delay(1000);
+        setup();
+        loop();
+      }
       if(!wtf and (signal == "BACK")){
         if(input.length() == 0){
+          lcd.setCursor(12,1);
+          lcd.print("BAC");
+          lcd.setCursor(12,1);
           Serial.println("BACK");
+          delay(100);
+          String previous = (Serial.readString());
+          if ((p1_score != 501) or (p2_score != 501)){
+          onTurn = !onTurn;}
+          if(!onTurn){p1_score += previous.toInt();}
+          else{p2_score += previous.toInt();}
+          previous = "0";
         }
+        else{
         input = "";
         lcd.setCursor(12,1);
         lcd.print("   ");
-        lcd.setCursor(12,1);
+        lcd.setCursor(12,1);}
       }
       else if (!wtf and (signal !="ENTER")) {
         if(input.length() < 3){
@@ -230,13 +276,52 @@ void loop() {
   lcd.print("   ");
   lcd.setCursor(12,1);
   if(p1_score == 0){
+    Serial.println("LEG");
     p1_score = 501;
     p2_score = 501;
     p1_leg++;
+    if(p1_leg == legsinset){
+      p1_set++;
+      if(p1_set == setsinmatch){
+        lcd.clear();
+        lcd.print(p1_name + " WON!!!");
+        match_ended = true;
+      }
+      p1_leg = 0;
+      p2_leg = 0;
+      leg_starter = set_starter;
+      set_starter = !set_starter;
+    }
+    leg_starter = !leg_starter;
+    onTurn = leg_starter;
   }
   if(p2_score == 0){
+    Serial.println("LEG");
     p2_score = 501;
     p1_score = 501;
     p2_leg++;
+    if(p2_leg == legsinset){
+      p2_set++;
+      if(p2_set == setsinmatch){
+        lcd.clear();
+        lcd.print(p2_name + " WON!!!");
+        match_ended = true;
+      }
+      p1_leg = 0;
+      p2_leg = 0;
+      leg_starter = set_starter;
+      set_starter = !set_starter;
+    }
+    leg_starter = !leg_starter;
+    onTurn = leg_starter;
+  }
+  if(match_ended){
+    delay(2000);
+    Serial.flush();
+    Serial.println("END");
+    delay(100);
+    lcd.clear();
+    setup();
+    loop();
   }
 }
