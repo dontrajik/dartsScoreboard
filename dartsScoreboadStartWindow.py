@@ -9,7 +9,9 @@ def show_values():
         entry1.insert(0," P1")
     if entry2.get() == "":
         entry2.insert(0," P2")
-    result = [str(entry1.get()), str(entry2.get()), str(legs.get()), str(sets.get())]
+    player1 = str(entry1.get())
+    player2 = str(entry2.get())
+    result = [player1, player2, str(legs.get()), str(sets.get())]
     for i in range(len(result)):
         result[i] = result[i][:3].upper()
     print (result)
@@ -29,6 +31,8 @@ def show_values():
 
 while True:
     throws = []
+    p1throws = []
+    p2throws = []
     root = Tk()
     root.title("Darts Scoreboard")
     root.geometry("350x200")
@@ -60,21 +64,41 @@ while True:
     entry1.focus()
     mainloop()
 
-    line = ""
-    while line[:3] != "END":
-        line = ser.readline()
-        line = line.decode("UTF-8", "ignore").strip()
+    line = ser.readline()
+    line = line.decode("UTF-8", "ignore")
+    line = line.strip().split(";")
+    inputted = line[0]
+    while inputted != "END":
         print(line)
-        if (line == "BACK") and (len(throws) > 0):
+        if inputted != "EXIT":
+            player = line[1]
+        if (inputted == "BACK") and (len(throws) > 0):
             print(throws)
             ser.write(bytes(str(throws[-1]).encode()))
             throws.pop(-1)
-        elif line == "LEG":
+            if player == "p1":
+                p1throws.pop(-1)
+            elif player == "p2":
+                p2throws.pop(-1)
+        elif inputted == "LEG":
             throws = []
-        if (line == "EXIT"):
+        elif inputted == "EXIT":
             break
-        elif line.isdigit():
-            throws.append(int(line))
+        elif inputted.isdigit():
+            throws.append(int(inputted))
+            if player == "p1":
+                p1throws.append(int(inputted))
+            elif player == "p2":
+                p2throws.append(int(inputted))
+        line = ser.readline()
+        line = line.decode("UTF-8", "ignore")
+        line = line.strip().split(";")
+        inputted = line[0]
+    print(line)    
     new_match = str(input("want a new match? y/n  "))
-    if new_match == 'n':
+    if new_match.strip() == 'n':
+        import smtplib
+        import statistics
+        msg = str(line[1]) + " is the winner!!!"
+        print(msg, statistics.mean(p1throws), statistics.mean(p2throws))
         break

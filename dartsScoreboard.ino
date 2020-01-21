@@ -20,6 +20,7 @@ boolean wtf = false;
 boolean onTurn = false;
 String signal = "";
 String input = "";
+String winner = "";
 
 IRrecv irrecv(RECV_PIN);
 decode_results results;
@@ -217,7 +218,10 @@ void loop() {
           lcd.setCursor(12,1);
           lcd.print("BAC");
           lcd.setCursor(12,1);
-          Serial.println("BACK");
+          if (!onTurn){
+          Serial.println("BACK;p1");}
+          else{
+          Serial.println("BACK;p1");}
           delay(100);
           String previous = (Serial.readString());
           if ((p1_score != 501) or (p2_score != 501)){
@@ -253,8 +257,8 @@ void loop() {
       lcd.print("   ");
       lcd.setCursor(12,0);
       lcd.print(input);
-      Serial.println(input);
       if(!onTurn){
+        Serial.println(input + ";p1");
         p1_score = p1_score - input.toInt();
         lcd.setCursor(15, 0);
         lcd.print(" ");
@@ -262,6 +266,7 @@ void loop() {
         lcd.write(byte(0));
       }
       else{
+        Serial.println(input + ";p2");
         p2_score = p2_score - input.toInt();
         lcd.setCursor(15, 1);
         lcd.print(" ");
@@ -276,7 +281,7 @@ void loop() {
   lcd.print("   ");
   lcd.setCursor(12,1);
   if(p1_score == 0){
-    Serial.println("LEG");
+    Serial.println("LEG;p1");
     p1_score = 501;
     p2_score = 501;
     p1_leg++;
@@ -286,6 +291,7 @@ void loop() {
         lcd.clear();
         lcd.print(p1_name + " WON!!!");
         match_ended = true;
+        winner = p1_name;
       }
       p1_leg = 0;
       p2_leg = 0;
@@ -296,7 +302,7 @@ void loop() {
     onTurn = leg_starter;
   }
   if(p2_score == 0){
-    Serial.println("LEG");
+    Serial.println("LEG;p2");
     p2_score = 501;
     p1_score = 501;
     p2_leg++;
@@ -306,6 +312,7 @@ void loop() {
         lcd.clear();
         lcd.print(p2_name + " WON!!!");
         match_ended = true;
+        winner = p2_name;
       }
       p1_leg = 0;
       p2_leg = 0;
@@ -318,7 +325,7 @@ void loop() {
   if(match_ended){
     delay(2000);
     Serial.flush();
-    Serial.println("END");
+    Serial.println("END;" + winner);
     delay(100);
     lcd.clear();
     setup();
