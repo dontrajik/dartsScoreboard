@@ -1,5 +1,6 @@
 # dartsScoreboard
-Darts mérközés levezető projekt
+Darts mérközés levezető projekt távirányítóval, email értesítéssel.
+
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNTMzODY3MzE5LC0xMDEyMjU0ODA3XX0=
+eyJoaXN0b3J5IjpbNDgxODAzNjYyLC0xMDEyMjU0ODA3XX0=
 -->
