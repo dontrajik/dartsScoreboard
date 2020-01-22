@@ -1,9 +1,9 @@
 # dartsScoreboard
-Darts mérközés levezető projekt távirányítóval, email értesítéssel.
+Darts mérkőzés levezető projekt távirányítóval, email értesítéssel.
 
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTE5MDQzNjkyNCwtMjA1MjE2MTQzNyw0OD
-E4MDM2NjIsLTcxMjc5ODM1OCw0ODE4MDM2NjIsLTEwMTIyNTQ4
-MDddfQ==
+eyJoaXN0b3J5IjpbLTUzNjUyMDM4MywxMTkwNDM2OTI0LC0yMD
+UyMTYxNDM3LDQ4MTgwMzY2MiwtNzEyNzk4MzU4LDQ4MTgwMzY2
+MiwtMTAxMjI1NDgwN119
 -->
