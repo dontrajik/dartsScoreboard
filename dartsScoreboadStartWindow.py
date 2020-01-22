@@ -1,18 +1,28 @@
-from tkinter import *
-import serial
 from time import sleep
+from tkinter import *
 import smtplib
 import getpass
+import serial
+import os
+
+ser = serial.Serial('/dev/ttyUSB0', baudrate=9600)  # open serial port
 
 server = smtplib.SMTP('smtp.gmail.com',587)
 server.starttls()
-address = input("Email: ")
-password = getpass.getpass()
-server.login(address,password)
-password = ""
 
-ser = serial.Serial('/dev/ttyUSB0', baudrate=9600)  # open serial port
- 
+while True:
+    try:
+        address = input("Email: ")
+        if address == "":
+            server.close()
+            break
+        password = getpass.getpass()
+        server.login(address,password)
+        password = ""
+        break
+    except smtplib.SMTPAuthenticationError:
+            print("Wrong email or password! Try again!\n")
+
 def show_values():
     if entry1.get() == "":
         entry1.insert(0," P1")
@@ -36,6 +46,12 @@ def show_values():
     ser.write(bytes(s.encode()))
     root.destroy()
 
+global quitted
+quitted = False
+
+def breakthewindow():
+    os.system('kill %d' % os.getpid())
+    
 while True:
     throws = []
     p1throws = []
@@ -44,7 +60,7 @@ while True:
     root.title("Darts Scoreboard")
     root.geometry("350x200")
     root.resizable(0,0)
-
+    root.protocol("WM_DELETE_WINDOW", breakthewindow)
     Label(root, text="Name should be 3 character long(ENG, TOM, EDD...)", padx=10).grid(row=0,columnspan=2, sticky="N")
     root.grid_columnconfigure(1, weight=1)
     
@@ -65,12 +81,11 @@ while True:
     sets.grid(row=4,column=1)
     sets.set(1)
     
-    button1 = Button(root, text = "QUIT", command=root.destroy).grid(row=7,column=0, sticky="WE")
+    button1 = Button(root, text = "QUIT", command=breakthewindow).grid(row=7,column=0, sticky="WE")
     button2 = Button(root, text = "START", command=show_values).grid(row=7,column=1, columnspan=2, sticky="WE")
 
     entry1.focus()
     mainloop()
-    
     matchdata = ser.readline()
     matchdata = matchdata.decode("UTF-8", "ignore")
     matchdata = matchdata.strip().split(";")
@@ -107,17 +122,18 @@ while True:
         line = line.strip().split(";")
         inputted = line[0]
     result = line
-    print(result)    
-    new_match = str(input("want a new match? y/n  "))
-    if new_match.strip() == 'n':
-        import statistics
-        msg = "" + line[2] + " " + str(line[3]) + " - " + str(line[5]) + " " + line[6] 
-        print(type(msg))
-        msg += "\n" + matchdata[0] + " avarage: " + str(statistics.mean(p1throws))
-        msg += "\n" + matchdata[1] + " avarage: " + str(statistics.mean(p2throws))
-        print(msg)
+    print(result)
+    import statistics
+    msg = "Subject: Match result\n" + line[2] + " " + str(line[3]) + " - " + str(line[5]) + " " + line[6]
+    msg += "\n" + matchdata[0] + " avarage: " + str(statistics.mean(p1throws))
+    msg += "\n" + matchdata[1] + " avarage: " + str(statistics.mean(p2throws))
+    print(msg)
+    if address != "":
         sendto = input("Who to send?: ")
-        server.sendmail(address,sendto,msg)
-        server.close()
-        print("Email sent")
+        if sendto != "":
+            server.sendmail(address,sendto,msg)
+            print("Email sent")  
+        server.close() 
+    new_match = str(input("Want a new match? y/n  "))
+    if new_match.strip() == 'n':
         break

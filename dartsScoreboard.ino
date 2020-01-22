@@ -1,31 +1,36 @@
 #include <LiquidCrystal.h>
 #include <IRremote.h>
 
-int p1_score = 501;
-int p2_score = 501;
-int p1_set = 0;
-int p2_set = 0;
-int p1_leg = 0;
-int p2_leg = 0;
-boolean match_ended = false;
-String p1_name;
-String p2_name;
-boolean leg_starter = false;
-boolean set_starter = false;
-int legsinset;
-int setsinmatch;
-String match_data;
-const int RECV_PIN = 7;
-boolean wtf = false;
-boolean onTurn = false;
-String signal = "";
-String input = "";
-String winner = "";
+//Basic variable initialisation----------------------------------------------------------------\\
 
+int p1_score, p2_score = 501; //Setting the starting score as 501
+int p1_set, p2_set, p1_leg, p2_leg = 0; //Setting legs and sets as 0
+String p1_name, p2_name; //init names
+boolean match_ended = false;
+boolean leg_starter, set_starter = false; //init leg and set starter (false means player1 starts)
+int legsinset, setsinmatch; //init how many legs and sets gonna be
+String match_data; //Basic match data
+boolean unknown = false; //Unknown signal from the remote
+boolean onTurn = false; //init who is on turn (false means player1 onTurn)
+String signal = ""; //Signal string from remote hex signal
+String input = ""; //input string from converting signal
+String winner = ""; //String that tells who is the winner
+String temp; //Temporary string
+
+//---------------------------------------------------------------------------------------------\\
+
+//IR Remote LED initialisation-----------------------------------------------------------------\\
+
+const int RECV_PIN = 7; //IR reciver led pin
 IRrecv irrecv(RECV_PIN);
 decode_results results;
 
+//---------------------------------------------------------------------------------------------\\
+
+//LCD initialisation---------------------------------------------------------------------------\\
+
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
 byte arrow[8] = {
   B00000,
   B00010,
@@ -37,7 +42,9 @@ byte arrow[8] = {
   B00000,
 };
 
-boolean throwable(int thrown){
+//---------------------------------------------------------------------------------------------\\
+
+boolean throwable(int thrown){ //function that tells if input is throwable with 3 darts
   int unthrowable[9] = {
     179, 178, 176, 175, 173, 172, 169, 166, 163    };
   if(thrown > 180){
@@ -51,66 +58,7 @@ boolean throwable(int thrown){
   return true;
 } 
 
-String temp;
-
-void setup() {
-p1_score = 501;
-p2_score = 501;
-p1_set = 0;
-p2_set = 0;
-p1_leg = 0;
-p2_leg = 0;
-match_ended = false;
-p1_name;
-p2_name;
-leg_starter = false;
-set_starter = false;
-legsinset;
-setsinmatch;
-match_data;
-const int RECV_PIN = 7;
-wtf = false;
-onTurn = false;
-String signal = "";
-String input = "";
-  Serial.begin(9600);
-  lcd.begin(16, 2);
-  lcd.createChar(0, arrow);
-  int dots = 1;
-  lcd.clear();
-  lcd.print("Loading");
-  while(Serial.readString() != "START")
-  { 
-    lcd.setCursor(7,0);
-    for(int i = 0; i < dots;i++){
-
-      lcd.print(".");
-    }
-    if(dots <=3){
-      dots++;
-    }
-    else{
-      dots = 1;
-      lcd.setCursor(7,0);
-      lcd.print("    ");
-    };
-  } 
-  delay(200);
-  Serial.println("OK");
-  lcd.clear();
-  match_data = Serial.readString();
-  delay(200);
-  Serial.println(match_data);
-  legsinset = match_data.substring(8,9).toInt();
-  setsinmatch = match_data.substring(10,11).toInt();
-  p1_name = match_data.substring(0,3);
-  p2_name = match_data.substring(4,7);
-  irrecv.enableIRIn();
-  lcd.setCursor(15,0);
-  lcd.write(byte(0));
-  lcd.setCursor(0,0);
-}
-void board(){
+void board(){ //function that clears and prints current match scores
   lcd.clear();
   lcd.print(p1_name);
   lcd.print("    ");
@@ -155,14 +103,71 @@ void board(){
     lcd.write(byte(0));
   }
 }
+
+void setup() {
+p1_score = 501;
+p2_score = 501;
+p1_set = 0;
+p2_set = 0;
+p1_leg = 0;
+p2_leg = 0;
+match_ended = false;
+p1_name;
+p2_name;
+leg_starter = false;
+set_starter = false;
+legsinset;
+setsinmatch;
+match_data;
+unknown = false;
+onTurn = false;
+String signal = "";
+String input = "";
+Serial.begin(9600);
+lcd.begin(16, 2);
+lcd.createChar(0, arrow);
+int dots = 1;
+lcd.clear();
+lcd.print("Loading");
+while(Serial.readString() != "START")
+  { 
+    lcd.setCursor(7,0);
+    for(int i = 0; i < dots;i++){
+
+      lcd.print(".");
+    }
+    if(dots <=3){
+      dots++;
+    }
+    else{
+      dots = 1;
+      lcd.setCursor(7,0);
+      lcd.print("    ");
+    };
+  } 
+  delay(200);
+  Serial.println("OK");
+  lcd.clear();
+  match_data = Serial.readString();
+  delay(200);
+  Serial.println(match_data);
+  legsinset = match_data.substring(8,9).toInt();
+  setsinmatch = match_data.substring(10,11).toInt();
+  p1_name = match_data.substring(0,3);
+  p2_name = match_data.substring(4,7);
+  irrecv.enableIRIn();
+  lcd.setCursor(15,0);
+  lcd.write(byte(0));
+  lcd.setCursor(0,0);
+}
+
 void loop() {
   board();
-  wtf = false;
+  unknown = false;
   signal = "";
   input = "";
   while((signal != "ENTER") and !match_ended){
     if (irrecv.decode(&results)) {
-
       signal = "";
       switch (results.value) {
       case 0xE0E020DF:
@@ -206,17 +211,16 @@ void loop() {
         
         break;
       default:
-        wtf = true;
+        unknown = true;
         break;
       }
-      //Serial.print(signal);
-      if(!wtf and (signal == "EXIT")){
+      if(!unknown and (signal == "EXIT")){
         Serial.println("EXIT;junk;"+ p1_name+ ";" + String(p1_set) + ";" + ":" + ";" + String(p2_set) + ";" + p2_name);
         delay(2000);
         setup();
         loop();
       }
-      if(!wtf and (signal == "BACK")){
+      if(!unknown and (signal == "BACK")){
         if(input.length() == 0){
           lcd.setCursor(12,1);
           lcd.print("BAC");
@@ -239,7 +243,7 @@ void loop() {
         lcd.print("   ");
         lcd.setCursor(12,1);}
       }
-      else if (!wtf and (signal !="ENTER")) {
+      else if (!unknown and (signal !="ENTER")) {
         if(input.length() < 3){
           input = input + signal;
           lcd.setCursor(12,1);
@@ -283,6 +287,9 @@ void loop() {
   lcd.setCursor(12,1);
   lcd.print("   ");
   lcd.setCursor(12,1);
+  
+  //end of turn score update---------\\
+  
   if(p1_score == 0){
     Serial.println("LEG;p1");
     p1_score = 501;
@@ -304,6 +311,7 @@ void loop() {
     leg_starter = !leg_starter;
     onTurn = leg_starter;
   }
+  
   if(p2_score == 0){
     Serial.println("LEG;p2");
     p2_score = 501;
@@ -325,6 +333,11 @@ void loop() {
     leg_starter = !leg_starter;
     onTurn = leg_starter;
   }
+  
+  //---------------------------------\\
+  
+  //Ending match
+  
   if(match_ended){
     delay(2000);
     Serial.flush();
