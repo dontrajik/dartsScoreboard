@@ -1,9 +1,11 @@
 # dartsScoreboard
-Darts mérkőzés levezető projekt távirányítóval, email értesítéssel.
-
+Darts mérközés levezető projekt távirányítóval, email értesítéssel.
+```
+![alt text](https://raw.githubusercontent.com/dontrajik/dartsScoreboard/master/src/screen.png)
+```
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTUzNjUyMDM4MywxMTkwNDM2OTI0LC0yMD
-UyMTYxNDM3LDQ4MTgwMzY2MiwtNzEyNzk4MzU4LDQ4MTgwMzY2
-MiwtMTAxMjI1NDgwN119
+eyJoaXN0b3J5IjpbLTIwNTIxNjE0MzcsLTUzNjUyMDM4MywxMT
+kwNDM2OTI0LC0yMDUyMTYxNDM3LDQ4MTgwMzY2MiwtNzEyNzk4
+MzU4LDQ4MTgwMzY2MiwtMTAxMjI1NDgwN119
 -->
