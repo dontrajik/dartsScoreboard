@@ -1,2 +1,5 @@
 # dartsScoreboard
-Darts scoreboard assignment program for MEMS class at SZE University.
+##This
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTgwNTU5OTM3OV19
+-->
