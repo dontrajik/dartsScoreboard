@@ -52,6 +52,7 @@ boolean throwable(int thrown){
 } 
 
 String temp;
+
 void setup() {
 p1_score = 501;
 p2_score = 501;
@@ -98,6 +99,8 @@ String input = "";
   Serial.println("OK");
   lcd.clear();
   match_data = Serial.readString();
+  delay(200);
+  Serial.println(match_data);
   legsinset = match_data.substring(8,9).toInt();
   setsinmatch = match_data.substring(10,11).toInt();
   p1_name = match_data.substring(0,3);
@@ -208,8 +211,8 @@ void loop() {
       }
       //Serial.print(signal);
       if(!wtf and (signal == "EXIT")){
-        Serial.println("EXIT");
-        delay(1000);
+        Serial.println("EXIT;junk;"+ p1_name+ ";" + String(p1_set) + ";" + ":" + ";" + String(p2_set) + ";" + p2_name);
+        delay(2000);
         setup();
         loop();
       }
@@ -325,7 +328,7 @@ void loop() {
   if(match_ended){
     delay(2000);
     Serial.flush();
-    Serial.println("END;" + winner);
+    Serial.println("END;" + winner + ";" + p1_name + ";" + p1_set + ";" + ":" + ";" + p2_set + ";" + p2_name);
     delay(100);
     lcd.clear();
     setup();
