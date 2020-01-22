@@ -1,5 +1,4 @@
 # dartsScoreboard
-<<<<<<< HEAD
 
 Darts match marker project with remote controll and email notification.
 ![wiring](https://github.com/dontrajik/dartsScoreboard/blob/master/src/wiring.png)
@@ -9,7 +8,7 @@ Darts match marker project with remote controll and email notification.
   + Arduino uno
   + Raspberry pi with usb
   + 1x 10Kohm Potentiometer
-  + 1 x 270ohm Resistor
+  + 1x 270ohm Resistor
   + [1x 1602A LCD Board](https://www.openhacks.com/uploadsproductos/eone-1602a1.pdf)
   + [1x vs1838b IR Reciever Module](http://eeshop.unl.edu/pdf/VS1838-Infrared-Receiver-datasheet.pdf)
   + [Remote Contoller](https://www.amazon.co.uk/Samsung-BN59-01303A-Remote-Control/dp/B07JPLDLNS)
